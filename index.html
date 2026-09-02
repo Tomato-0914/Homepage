@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Cheshire</title>
+  <meta name="description" content="柴郡的个人主页">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <!-- 背景图片轮播层与柔和遮罩 -->
+  <div class="bg-slider" id="bgSlider"></div>
+  <div class="bg-overlay"></div>
+  <div class="noise"></div>
+  <div class="glow"></div>
+
+  <div class="dashboard">
+
+    <header>
+      <div class="mark"><span class="dot"></span>Cheshire</div>
+      <nav class="links" id="linkRow"></nav>
+    </header>
+
+    <main>
+      <div class="clock" id="clock">
+        <span id="h">00</span><span class="colon" id="c1">:</span><span id="m">00</span><span class="colon"
+          id="c2">:</span><span id="s">00</span>
+      </div>
+      <div class="date" id="dateLine">—</div>
+
+      <div class="weather" id="weatherCard">
+        <div class="icon" id="wIcon">⛅</div>
+        <div class="info">
+          <div class="temp" id="wTemp">--°</div>
+          <div class="place" id="wPlace">定位中…</div>
+          <div class="desc" id="wDesc">&nbsp;</div>
+        </div>
+        <button id="weatherEditBtn" title="切换城市">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z" />
+            <circle cx="12" cy="10" r="2.5" />
+          </svg>
+        </button>
+
+        <div class="city-pop" id="cityPop">
+          <button class="geo-btn" id="geoBtn">📍 使用当前定位</button>
+          <input type="text" id="cityInput" placeholder="输入城市名，回车搜索">
+          <div class="chips">
+            <button class="chip" data-city="东京">东京</button>
+            <button class="chip" data-city="北京">北京</button>
+            <button class="chip" data-city="上海">上海</button>
+            <button class="chip" data-city="纽约">纽约</button>
+            <button class="chip" data-city="伦敦">伦敦</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="player" id="playerBar">
+      <div class="track-art" id="trackArt" title="点击展开全屏滚动歌词">
+        <div id="trackArtContent">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M9 18V5l12-2v13" />
+            <circle cx="6" cy="18" r="3" />
+            <circle cx="18" cy="16" r="3" />
+          </svg>
+        </div>
+        <div class="art-overlay" title="展开歌词">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m5 15 7-7 7 7" />
+          </svg>
+        </div>
+      </div>
+
+      <div id="playerEmpty" class="player-empty">
+        还没有配置歌单 —— 把 mp3 放进 <b>/music</b> 文件夹并用「生成歌单.html」生成歌单
+      </div>
+
+      <div class="track-info" id="trackInfo" style="display:none;" title="点击展开全屏滚动歌词">
+        <div class="track-title" id="trackTitle">未选择音乐</div>
+        <div class="track-sub" id="trackSub">0 首曲目</div>
+      </div>
+
+      <div class="controls" id="controlsWrap" style="display:none;">
+        <button class="ctrl-btn" id="prevBtn" title="上一首">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />
+          </svg>
+        </button>
+        <button class="ctrl-btn" id="playBtn" title="播放/暂停">
+          <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </button>
+        <button class="ctrl-btn" id="nextBtn" title="下一首">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M16 6h2v12h-2zM6 6l8.5 6L6 18z" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="progress-wrap" id="progressWrap" style="display:none;">
+        <span class="time" id="curTime">0:00</span>
+        <input type="range" id="seek" value="0" min="0" max="100" step="0.1">
+        <span class="time" id="durTime">0:00</span>
+      </div>
+
+      <button class="ctrl-btn" id="listBtn" title="歌单" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 6h16M4 12h16M4 18h10" />
+        </svg>
+      </button>
+
+      <div class="vol-wrap" id="volWrap" style="display:none;">
+        <button id="volBtn" title="静音 / 取消静音">
+          <svg id="volIcon" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+          </svg>
+        </button>
+        <input type="range" id="volume" value="70" min="0" max="100" step="1">
+      </div>
+
+      <div class="playlist-pop" id="playlistPop"></div>
+
+      <audio id="audio"></audio>
+    </footer>
+
+  </div>
+
+  <!-- 全屏沉浸式歌词页面（网易云音乐滚动风格） -->
+  <div class="lyric-modal" id="lyricModal">
+    <div class="lm-bg-glow"></div>
+
+    <div class="lm-header">
+      <button class="lm-close-btn" id="lmCloseBtn" title="收起歌词 (ESC)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </button>
+      <div class="lm-song-meta">
+        <div class="lm-meta-title" id="lmMetaTitle">未选择音乐</div>
+        <div class="lm-meta-artist" id="lmMetaArtist">无歌手信息</div>
+      </div>
+      <div class="lm-header-right"></div>
+    </div>
+
+    <div class="lm-body">
+      <!-- 左侧：黑胶唱片 / 专辑大图 -->
+      <div class="lm-cover-wrap">
+        <div class="lm-disc-box" id="lmDiscBox">
+          <div class="lm-disc-grooves"></div>
+          <div class="lm-disc-center" id="lmDiscCover">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M9 18V5l12-2v13" />
+              <circle cx="6" cy="18" r="3" />
+              <circle cx="18" cy="16" r="3" />
+            </svg>
+          </div>
+        </div>
+        <div class="lm-cover-info">
+          <div class="lm-cover-title" id="lmCoverTitle">未选择音乐</div>
+          <div class="lm-cover-artist" id="lmCoverArtist">未知歌手</div>
+        </div>
+      </div>
+
+      <!-- 右侧：网易云多行歌词滚动 -->
+      <div class="lm-lyrics-box" id="lmLyricsBox">
+        <div class="lm-no-lrc">纯音乐 / 暂无歌词</div>
+      </div>
+    </div>
+
+    <!-- 底部控制栏 -->
+    <div class="lm-footer">
+      <div class="lm-progress-row">
+        <span class="time" id="lmCurTime">0:00</span>
+        <input type="range" id="lmSeek" value="0" min="0" max="100" step="0.1">
+        <span class="time" id="lmDurTime">0:00</span>
+      </div>
+      <div class="lm-controls-row">
+        <button class="ctrl-btn" id="lmPrevBtn" title="上一首">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />
+          </svg>
+        </button>
+        <button class="ctrl-btn" id="lmPlayBtn" title="播放/暂停"
+          style="width:42px; height:42px; background:var(--amber); color:#1a1305; border-radius:50%;">
+          <svg id="lmPlayIcon" viewBox="0 0 24 24" fill="currentColor" style="width:18px; height:18px;">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </button>
+        <button class="ctrl-btn" id="lmNextBtn" title="下一首">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M16 6h2v12h-2zM6 6l8.5 6L6 18z" />
+          </svg>
+        </button>
+
+        <div class="lm-side-ctrls">
+          <div class="vol-wrap">
+            <button id="lmVolBtn" title="静音 / 取消静音">
+              <svg id="lmVolIcon" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+              </svg>
+            </button>
+            <input type="range" id="lmVolume" value="70" min="0" max="100" step="1">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="music/playlist.js" onerror="window.PLAYLIST_DATA=null"></script>
+  <script src="js/main.js"></script>
+</body>
+
+</html>

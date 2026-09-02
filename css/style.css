@@ -1,0 +1,1027 @@
+:root {
+  --bg: #0B0D10;
+  --panel: #14171C;
+  --panel2: #1B1F26;
+  --line: rgba(255, 255, 255, .09);
+  --ink: #EDEFF2;
+  --muted: #828A97;
+  --amber: #FFB020;
+  --amber-dim: rgba(255, 176, 32, .14);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Manrope', sans-serif;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+::selection {
+  background: var(--amber-dim);
+  color: var(--amber);
+}
+
+.bg-slider {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--bg);
+}
+
+.bg-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transform: scale(1.05);
+  transition: opacity 1.8s cubic-bezier(0.25, 1, 0.5, 1), transform 9s ease-out;
+  will-change: opacity, transform;
+}
+
+.bg-slide.active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.bg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at center, rgba(11, 13, 16, 0.42) 0%, rgba(11, 13, 16, 0.78) 100%);
+  backdrop-filter: blur(0.5px);
+  -webkit-backdrop-filter: blur(0.5px);
+}
+
+.noise {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(255, 255, 255, .05) 1px, transparent 1px);
+  background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 40%, transparent 90%);
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 40%, transparent 90%);
+}
+
+.glow {
+  position: fixed;
+  top: 38%;
+  left: 50%;
+  translate: -50% -50%;
+  width: min(60vw, 700px);
+  height: min(60vw, 700px);
+  background: radial-gradient(circle, rgba(255, 176, 32, .10) 0%, transparent 70%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.dashboard {
+  position: relative;
+  z-index: 1;
+  height: 100dvh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- 顶部栏 ---- */
+header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px clamp(20px, 4vw, 44px) 0;
+}
+
+.mark {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 700;
+  font-size: .98rem;
+  letter-spacing: .01em;
+}
+
+.mark .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 8px var(--amber);
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.links a {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  text-decoration: none;
+  transition: border-color .2s ease, color .2s ease, transform .2s ease;
+}
+
+.links a:hover {
+  border-color: var(--amber);
+  color: var(--amber);
+  transform: translateY(-2px);
+}
+
+.links svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* ---- 中间主区 ---- */
+main {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(18px, 3.4vh, 34px);
+  padding: 0 20px;
+}
+
+.clock {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: clamp(3rem, 15vw, 9.5rem);
+  line-height: 1;
+  letter-spacing: -.01em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  display: flex;
+  align-items: baseline;
+}
+
+.clock .colon {
+  color: var(--amber);
+  margin: 0 .06em;
+  transition: opacity .1s linear;
+}
+
+.clock .colon.dim {
+  opacity: .18;
+}
+
+.date {
+  font-size: clamp(.85rem, 2vw, 1.05rem);
+  color: var(--muted);
+  letter-spacing: .02em;
+  margin-top: -10px;
+}
+
+.date b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* ---- 天气卡片 ---- */
+.weather {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 20px;
+}
+
+.weather .icon {
+  font-size: 1.9rem;
+  line-height: 1;
+}
+
+.weather .info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.weather .temp {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.weather .place {
+  font-size: .8rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.weather .desc {
+  font-size: .78rem;
+  color: var(--muted);
+}
+
+#weatherEditBtn {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  cursor: pointer;
+  margin-left: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color .2s ease, color .2s ease;
+}
+
+#weatherEditBtn:hover {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+#weatherEditBtn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.city-pop {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  translate: -50% 0;
+  width: 260px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 20;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, .4);
+}
+
+.city-pop.open {
+  display: flex;
+}
+
+.city-pop input {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 9px 11px;
+  border-radius: 7px;
+  font-size: .85rem;
+}
+
+.city-pop input:focus {
+  outline: 1px solid var(--amber);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  font-size: .74rem;
+  padding: 5px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  background: none;
+  cursor: pointer;
+  transition: border-color .2s ease, color .2s ease;
+}
+
+.chip:hover {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+.geo-btn {
+  font-size: .76rem;
+  color: var(--amber);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 2px 0;
+  opacity: .9;
+}
+
+
+/* ---- 底部音乐播放器 ---- */
+footer.player {
+  position: relative;
+  flex: 0 0 auto;
+  margin: 0 clamp(14px, 2.6vw, 28px) clamp(14px, 2.6vh, 26px);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 1.4vw, 16px);
+  transition: border-color .2s ease;
+}
+
+footer.player.drag {
+  border-color: var(--amber);
+}
+
+.track-art {
+  width: 42px;
+  height: 42px;
+  border-radius: 9px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: var(--muted);
+  cursor: pointer;
+  position: relative;
+  transition: border-color .2s ease, transform .2s ease, color .2s ease;
+  overflow: hidden;
+}
+
+.track-art:hover {
+  border-color: var(--amber);
+  color: var(--amber);
+  transform: scale(1.05);
+}
+
+.track-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.track-art svg {
+  width: 18px;
+  height: 18px;
+  transition: transform .2s ease;
+}
+
+.track-art .art-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, .55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .2s ease;
+  color: var(--amber);
+}
+
+.track-art:hover .art-overlay {
+  opacity: 1;
+}
+
+.track-art .art-overlay svg {
+  width: 16px;
+  height: 16px;
+}
+
+.track-info {
+  min-width: 0;
+  flex: 0 0 auto;
+  width: clamp(90px, 16vw, 190px);
+  cursor: pointer;
+}
+
+.track-title {
+  font-size: .85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color .2s ease;
+}
+
+.track-info:hover .track-title {
+  color: var(--amber);
+}
+
+.track-sub {
+  font-size: .72rem;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.ctrl-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: color .2s ease, background .2s ease;
+}
+
+.ctrl-btn:hover {
+  color: var(--ink);
+  background: var(--panel2);
+}
+
+.ctrl-btn svg {
+  width: 17px;
+  height: 17px;
+}
+
+#playBtn {
+  width: 38px;
+  height: 38px;
+  background: var(--amber);
+  color: #1a1305;
+  border-radius: 50%;
+}
+
+#playBtn:hover {
+  background: #ffc04d;
+}
+
+#playBtn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.progress-wrap {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .72rem;
+  color: var(--muted);
+  width: 38px;
+  text-align: center;
+  flex: 0 0 auto;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--panel2);
+  width: 100%;
+  min-width: 0;
+  flex: 1 1 auto;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--amber);
+  margin-top: 0;
+  cursor: pointer;
+}
+
+input[type="range"]#seek {
+  background: linear-gradient(to right, var(--amber) 0%, var(--amber) 0%, var(--panel2) 0%);
+}
+
+input[type="range"]#volume {
+  background: linear-gradient(to right, var(--amber) 70%, var(--amber) 70%, var(--panel2) 70%);
+}
+
+.vol-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+  width: 95px;
+  min-width: 0;
+}
+
+#volBtn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  flex: 0 0 auto;
+  transition: color .2s ease, background .2s ease;
+}
+
+#volBtn:hover {
+  color: var(--ink);
+  background: var(--panel2);
+}
+
+#volBtn svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.playlist-pop {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 18px;
+  width: 240px;
+  max-height: 260px;
+  overflow-y: auto;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 20;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, .4);
+}
+
+.playlist-pop.open {
+  display: flex;
+}
+
+.pl-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: .82rem;
+  color: var(--muted);
+  transition: background .15s ease, color .15s ease;
+}
+
+.pl-item:hover {
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.pl-item.active {
+  color: var(--amber);
+  background: var(--amber-dim);
+}
+
+.pl-item .n {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .72rem;
+  opacity: .7;
+  width: 16px;
+  flex: 0 0 auto;
+}
+
+.player-empty {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: .85rem;
+  gap: 8px;
+}
+
+.player-empty b {
+  color: var(--ink);
+}
+
+/* ---- 沉浸式全屏歌词页面 ---- */
+.lyric-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(11, 13, 16, 0.94);
+  backdrop-filter: blur(45px) saturate(160%);
+  -webkit-backdrop-filter: blur(45px) saturate(160%);
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(24px) scale(0.985);
+  transition: opacity .32s cubic-bezier(0.16, 1, 0.3, 1), transform .32s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.lyric-modal.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.lm-bg-glow {
+  position: absolute;
+  top: 38%;
+  left: 32%;
+  translate: -50% -50%;
+  width: min(75vw, 650px);
+  height: min(75vw, 650px);
+  background: radial-gradient(circle, rgba(255, 176, 32, .12) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(40px);
+}
+
+.lm-header {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px clamp(18px, 4vw, 40px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.lm-close-btn {
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.lm-close-btn:hover {
+  border-color: var(--amber);
+  color: var(--amber);
+  transform: translateY(2px);
+}
+
+.lm-close-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.lm-song-meta {
+  text-align: center;
+  min-width: 0;
+  padding: 0 16px;
+}
+
+.lm-meta-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60vw;
+}
+
+.lm-meta-artist {
+  font-size: .8rem;
+  color: var(--muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60vw;
+}
+
+.lm-header-right {
+  width: 38px;
+  height: 38px;
+}
+
+.lm-body {
+  position: relative;
+  z-index: 2;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px clamp(20px, 5vw, 60px);
+  gap: clamp(28px, 6vw, 90px);
+}
+
+/* 左侧：黑胶唱片 / 专辑大图 */
+.lm-cover-wrap {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.lm-disc-box {
+  position: relative;
+  width: clamp(210px, 26vw, 340px);
+  height: clamp(210px, 26vw, 340px);
+  border-radius: 50%;
+  background: radial-gradient(#14181f 0%, #0d0f13 70%, #060709 100%);
+  box-shadow: 0 20px 50px rgba(0,0,0,.7), inset 0 0 0 7px #171b22, inset 0 0 0 11px #090b0e, inset 0 0 0 13px #1f2530;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: disc-rotate 24s linear infinite;
+  animation-play-state: paused;
+  transition: box-shadow .3s ease;
+}
+
+.lm-disc-box.playing {
+  animation-play-state: running;
+  box-shadow: 0 20px 60px rgba(0,0,0,.8), 0 0 35px rgba(255, 176, 32, .12), inset 0 0 0 7px #171b22, inset 0 0 0 11px #090b0e, inset 0 0 0 13px #1f2530;
+}
+
+@keyframes disc-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.lm-disc-grooves {
+  position: absolute;
+  inset: 16px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255,255,255,.05);
+  box-shadow: inset 0 0 22px rgba(0,0,0,.9);
+  pointer-events: none;
+}
+
+.lm-disc-center {
+  width: 48%;
+  height: 48%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--panel2);
+  border: 4px solid #111419;
+  box-shadow: 0 0 18px rgba(0,0,0,.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lm-disc-center img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lm-disc-center svg {
+  width: 44px;
+  height: 44px;
+  color: var(--amber);
+}
+
+.lm-cover-info {
+  text-align: center;
+  max-width: clamp(210px, 26vw, 340px);
+}
+
+.lm-cover-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lm-cover-artist {
+  font-size: .88rem;
+  color: var(--muted);
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 右侧：网易云式多行滚动歌词 */
+.lm-lyrics-box {
+  flex: 1 1 auto;
+  height: 100%;
+  max-width: 620px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  padding: 180px 0;
+  scroll-behavior: smooth;
+}
+
+.lm-lyrics-box::-webkit-scrollbar {
+  display: none;
+}
+
+.lm-lrc-item {
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  color: rgba(237, 239, 242, 0.42);
+  padding: 12px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: color .25s ease, font-size .25s ease, transform .25s ease, background .25s ease;
+  line-height: 1.6;
+  text-align: left;
+  user-select: none;
+  transform-origin: left center;
+}
+
+.lm-lrc-item:hover {
+  color: rgba(237, 239, 242, 0.9);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.lm-lrc-item.active {
+  font-size: clamp(1.22rem, 1.9vw, 1.55rem);
+  font-weight: 700;
+  color: var(--amber);
+  text-shadow: 0 0 20px rgba(255, 176, 32, .45);
+  transform: translateX(4px) scale(1.02);
+}
+
+.lm-no-lrc {
+  text-align: center;
+  color: var(--muted);
+  font-size: 1rem;
+  margin: auto;
+  letter-spacing: .02em;
+}
+
+/* 底部全屏控制器 */
+.lm-footer {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 auto;
+  padding: 14px clamp(18px, 4vw, 40px) 24px;
+  background: rgba(14, 17, 22, 0.7);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lm-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 780px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.lm-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  position: relative;
+  max-width: 780px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.lm-side-ctrls {
+  position: absolute;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (max-height: 620px) {
+  header {
+    padding-top: 14px;
+  }
+
+  main {
+    gap: 14px;
+  }
+
+  .weather {
+    padding: 10px 16px;
+  }
+
+  footer.player {
+    margin-bottom: 12px;
+    padding: 9px 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .track-info {
+    width: 110px;
+  }
+
+  .vol-wrap {
+    width: 75px;
+  }
+
+  .lm-body {
+    flex-direction: column;
+    gap: 14px;
+    padding: 10px 18px;
+  }
+
+  .lm-cover-wrap {
+    gap: 10px;
+  }
+
+  .lm-disc-box {
+    width: 140px;
+    height: 140px;
+  }
+
+  .lm-disc-center svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .lm-cover-info {
+    display: none;
+  }
+
+  .lm-lyrics-box {
+    padding: 90px 0;
+    text-align: center;
+  }
+
+  .lm-lrc-item {
+    text-align: center;
+    transform-origin: center center;
+  }
+
+  .lm-side-ctrls .vol-wrap {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .track-info {
+    display: none;
+  }
+
+  .vol-wrap {
+    display: none;
+  }
+
+  header {
+    padding: 16px 16px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: .001ms !important;
+  }
+}
