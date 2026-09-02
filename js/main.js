@@ -1,16 +1,14 @@
 /* ============ 背景壁纸轮播配置 ============ */
 const BACKGROUNDS = [
-  'images/backgrounds/bg1.jpg',
-  'images/backgrounds/bg2.jpg',
-  'images/backgrounds/bg3.jpg',
-  'images/backgrounds/bg4.jpg',
-  'images/backgrounds/bg5.jpg',
-  'images/backgrounds/bg1.webp',
-  'images/backgrounds/bg2.webp',
-  'images/backgrounds/bg3.webp',
-  'images/backgrounds/bg1.svg',
-  'images/backgrounds/bg2.svg',
-  'images/backgrounds/bg3.svg',
+  'images/backgrounds/柴郡1.jpg',
+  'images/backgrounds/柴郡2.png',
+  'images/backgrounds/柴郡3.png',
+  'images/backgrounds/柴郡4.png',
+  'images/backgrounds/柴郡5.png',
+  'images/backgrounds/柴郡6.png',
+  'images/backgrounds/柴郡7.png',
+  'images/backgrounds/柴郡8.png',
+  'images/backgrounds/柴郡9.png',
 ];
 const BG_INTERVAL = 8000; // 轮播间隔（毫秒，默认 8 秒）
 
