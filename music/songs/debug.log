@@ -1,8 +1,0 @@
-[0902/222123.872:INFO:network_monitor.cc(54)] [NetworkMonitor] Started
-[0902/222139.154:INFO:network_monitor_win.cc(71)] [NetMon] Stop begin
-[0902/222139.154:INFO:network_monitor_win.cc(79)] [NetMon] Joining worker thread...
-[0902/222139.156:INFO:network_monitor_win.cc(81)] [NetMon] Worker thread joined
-[0902/222139.156:INFO:network_monitor_win.cc(99)] [NetMon] Stop done
-[0902/222139.156:INFO:network_monitor_win.cc(71)] [NetMon] Stop begin
-[0902/222139.156:INFO:network_monitor_win.cc(99)] [NetMon] Stop done
-[0902/222139.157:INFO:network_monitor.cc(74)] [NetworkMonitor] Stopped
