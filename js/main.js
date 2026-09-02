@@ -71,6 +71,7 @@ const ICONS = {
   x: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-7l-5.5-7.2L4.5 22H1.4l8.1-9.3L1 2h7.2l5 6.6L18.9 2zm-1.2 18h1.7L7.4 3.9H5.6L17.7 20z"/></svg>`,
   mail: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>`,
   link: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>`,
+  qq: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.24 2 3.5 5.94 3.5 9.5c0 1.7.62 2.96 1.14 3.86-.16.4-.5 1.36-.6 2.14-.1.76.24 1 .5.86.2-.1 1.1-.56 1.7-.9.5.16 1 .28 1.5.36-.2.5-.4 1.24-.24 1.9.2.8 1.06.9 1.7.4.3-.24.9-.86 1.2-1.2.3-.34.4-.3.6-.06.3.34.9.96 1.2 1.2.64.5 1.5.4 1.7-.4.16-.66-.04-1.4-.24-1.9.5-.08 1-.2 1.5-.36.6.34 1.5.8 1.7.9.26.14.6-.1.5-.86-.1-.78-.44-1.74-.6-2.14.52-.9 1.14-2.16 1.14-3.86C20.5 5.94 17.76 2 12 2z"/></svg>`,
 };
 const linkRow = document.getElementById('linkRow');
 LINKS.forEach(l => {
