@@ -64,7 +64,6 @@ const LINKS = [
   { name: 'QQ', url: 'https://qm.qq.com/q/CQafnoy3Zu', uin: '811749489', icon: 'qq' },
   { name: 'Twitter / X', url: 'https://x.com/yourname', icon: 'x' },
   { name: '邮箱', url: 'tb_siran@163.com', icon: 'mail' },
-  { name: 'QQ', url: 'https://wpa.qq.com/msgrd?v=3&uin=85273416&site=qq&menu=yes', icon: 'qq' },
 ];
 const ICONS = {
   github: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.8 5.4.8 11.7c0 5 3.2 9.2 7.7 10.7.6.1.8-.2.8-.6v-2.2c-3.1.7-3.8-1.3-3.8-1.3-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 1.7 2.6 1.2 3.2.9.1-.7.4-1.2.7-1.5-2.5-.3-5.1-1.2-5.1-5.5 0-1.2.4-2.2 1.2-3-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.7.8 1.2 1.8 1.2 3 0 4.3-2.6 5.2-5.1 5.5.4.4.8 1.1.8 2.2v3.3c0 .4.2.7.8.6 4.5-1.5 7.7-5.7 7.7-10.7C23.2 5.4 18.3.5 12 .5z"/></svg>`,
@@ -162,16 +161,38 @@ LINKS.forEach(l => {
   let href = l.url;
 
   if (l.icon === 'qq') {
-    a.href = l.url;
-    a.target = '_blank';
-    a.rel = 'noopener';
-    a.title = `${l.name}：点击加我为QQ好友（官方直达通道）`;
-    a.onclick = () => {
-      const qqNum = l.uin || '811749489';
+    const qqNum = l.uin || '811749489';
+    a.href = 'javascript:void(0);';
+    a.title = `${l.name}：${qqNum}（点击查看好友资料卡）`;
+    a.onclick = (e) => {
+      e.preventDefault();
+
+      // 复制 QQ 号到剪贴板，方便备用
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(qqNum).catch(() => {});
       }
-      showToast(`正在唤起 QQ 官方名片，QQ号 [${qqNum}] 已复制`);
+
+      const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+      if (isMobile) {
+        // 手机 PE 端：纯好友名片协议（直接在手机 QQ 打开好友资料卡）
+        window.location.href = `mqqapi://card/show_pslcard?src_type=internal&source=sharecard&version=1&uin=${qqNum}`;
+      } else {
+        // 电脑 PC 端：使用腾讯 QQ NT 官方纯资料卡协议（直接弹出迷你资料卡，绝不发起临时会话）
+        const ntParams = encodeURIComponent(JSON.stringify({
+          uin: String(qqNum),
+          sourceType: 'QrCodeShareBuddyLink'
+        }));
+        const ntUrl = `tencent://ntqq-open?subCmd=profile&action=openMiniBuddyProfile&actionParams=${ntParams}`;
+        
+        // 尝试通过隐藏 iframe 唤起桌面端纯资料卡，保持当前网页不跳转
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = ntUrl;
+        document.body.appendChild(iframe);
+        setTimeout(() => iframe.remove(), 1000);
+      }
+
+      showToast(`已展示 QQ 好友资料卡，QQ号 [${qqNum}] 已复制`);
     };
   } else {
     if (l.icon === 'mail' || (typeof href === 'string' && href.includes('@') && !href.startsWith('mailto:') && !href.startsWith('http'))) {
