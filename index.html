@@ -29,11 +29,13 @@
     </header>
 
     <main>
-      <div class="clock" id="clock">
-        <span id="h">00</span><span class="colon" id="c1">:</span><span id="m">00</span><span class="colon"
-          id="c2">:</span><span id="s">00</span>
+      <div class="time-wrap">
+        <div class="clock" id="clock">
+          <span id="h">00</span><span class="colon" id="c1">:</span><span id="m">00</span><span class="colon"
+            id="c2">:</span><span id="s">00</span>
+        </div>
+        <div class="date" id="dateLine">—</div>
       </div>
-      <div class="date" id="dateLine">—</div>
 
       <div class="weather" id="weatherCard">
         <div class="icon" id="wIcon">⛅</div>
@@ -83,12 +85,12 @@
         还没有配置歌单 —— 把 mp3 放进 <b>/music</b> 文件夹并用「生成歌单.html」生成歌单
       </div>
 
-      <div class="track-info" id="trackInfo" style="display:none;" title="点击展开全屏滚动歌词">
+      <div class="track-info" id="trackInfo" title="点击展开全屏滚动歌词">
         <div class="track-title" id="trackTitle">未选择音乐</div>
         <div class="track-sub" id="trackSub">0 首曲目</div>
       </div>
 
-      <div class="controls" id="controlsWrap" style="display:none;">
+      <div class="controls" id="controlsWrap">
         <button class="ctrl-btn" id="prevBtn" title="上一首">
           <svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />
@@ -106,19 +108,19 @@
         </button>
       </div>
 
-      <div class="progress-wrap" id="progressWrap" style="display:none;">
+      <div class="progress-wrap" id="progressWrap">
         <span class="time" id="curTime">0:00</span>
         <input type="range" id="seek" value="0" min="0" max="100" step="0.1">
         <span class="time" id="durTime">0:00</span>
       </div>
 
-      <button class="ctrl-btn" id="listBtn" title="歌单" style="display:none;">
+      <button class="ctrl-btn" id="listBtn" title="歌单">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M4 6h16M4 12h16M4 18h10" />
         </svg>
       </button>
 
-      <div class="vol-wrap" id="volWrap" style="display:none;">
+      <div class="vol-wrap" id="volWrap">
         <button id="volBtn" title="静音 / 取消静音">
           <svg id="volIcon" viewBox="0 0 24 24" fill="currentColor">
             <path
@@ -190,8 +192,7 @@
             <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />
           </svg>
         </button>
-        <button class="ctrl-btn" id="lmPlayBtn" title="播放/暂停"
-          style="width:42px; height:42px; background:var(--amber); color:#1a1305; border-radius:50%;">
+        <button class="ctrl-btn" id="lmPlayBtn" title="播放/暂停">
           <svg id="lmPlayIcon" viewBox="0 0 24 24" fill="currentColor" style="width:18px; height:18px;">
             <path d="M8 5v14l11-7z" />
           </svg>
@@ -213,6 +214,32 @@
             <input type="range" id="lmVolume" value="70" min="0" max="100" step="1">
           </div>
         </div>
+      </div>
+  <!-- QQ 专属名片弹窗 -->
+  <div class="qq-modal" id="qqModal">
+    <div class="qq-modal-backdrop" id="qqModalBackdrop"></div>
+    <div class="qq-modal-card">
+      <button class="qq-close-btn" id="qqCloseBtn" title="关闭 (ESC)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12" />
+        </svg>
+      </button>
+      <div class="qq-avatar-wrap">
+        <img class="qq-avatar" id="qqAvatar" src="https://q1.qlogo.cn/g?b=qq&nk=811749489&s=640" alt="QQ Avatar" />
+        <span class="qq-badge">QQ</span>
+      </div>
+      <div class="qq-card-title">添加 QQ 好友</div>
+      <div class="qq-num-box" id="qqNumBox" title="点击复制 QQ 号">
+        <span class="qq-num" id="qqNumText">811749489</span>
+        <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+      </div>
+      <div class="qq-tip" id="qqCopyTip">已自动复制到剪贴板，可在 QQ 中直接粘贴搜索</div>
+      <div class="qq-actions">
+        <button class="qq-btn qq-btn-primary" id="qqLaunchBtn">拉起 QQ 添加</button>
+        <button class="qq-btn qq-btn-ghost" id="qqCopyBtn">复制 QQ 号</button>
       </div>
     </div>
   </div>

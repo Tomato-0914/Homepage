@@ -7,6 +7,10 @@
   --muted: #828A97;
   --amber: #FFB020;
   --amber-dim: rgba(255, 176, 32, .14);
+  --sky: #38bdf8;
+  --sky-glow: rgba(56, 189, 248, 0.55);
+  --pink: #ff75a0;
+  --pink-glow: rgba(255, 117, 160, 0.6);
 }
 
 * {
@@ -169,6 +173,13 @@ main {
   padding: 0 20px;
 }
 
+.time-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
 .clock {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
@@ -195,7 +206,7 @@ main {
   font-size: clamp(.85rem, 2vw, 1.05rem);
   color: var(--muted);
   letter-spacing: .02em;
-  margin-top: -10px;
+  margin-top: 0;
 }
 
 .date b {
@@ -209,10 +220,13 @@ main {
   display: flex;
   align-items: center;
   gap: 16px;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 14px 20px;
+  background: rgba(16, 20, 26, 0.22);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  padding: 14px 22px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.12);
 }
 
 .weather .icon {
@@ -343,18 +357,38 @@ footer.player {
   position: relative;
   flex: 0 0 auto;
   margin: 0 clamp(14px, 2.6vw, 28px) clamp(14px, 2.6vh, 26px);
-  background: var(--panel);
-  border: 1px solid var(--line);
+  background: rgba(16, 20, 26, 0.48);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 16px;
   padding: 12px 18px;
   display: flex;
   align-items: center;
   gap: clamp(8px, 1.4vw, 16px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.14);
   transition: border-color .2s ease;
 }
 
 footer.player.drag {
   border-color: var(--amber);
+}
+
+/* 播放器状态控制 */
+footer.player:not(.has-track) .track-info,
+footer.player:not(.has-track) .controls,
+footer.player:not(.has-track) .progress-wrap,
+footer.player:not(.has-track) #listBtn,
+footer.player:not(.has-track) .vol-wrap {
+  display: none !important;
+}
+
+footer.player:not(.has-playlist) #listBtn {
+  display: none !important;
+}
+
+footer.player.has-track .player-empty {
+  display: none !important;
 }
 
 .track-art {
@@ -438,6 +472,9 @@ footer.player.drag {
   font-size: .72rem;
   color: var(--muted);
   margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .controls {
@@ -471,21 +508,38 @@ footer.player.drag {
   height: 17px;
 }
 
-#playBtn {
+#playBtn,
+#lmPlayBtn {
   width: 38px;
   height: 38px;
-  background: var(--amber);
-  color: #1a1305;
+  background: var(--sky);
+  color: #081a28;
   border-radius: 50%;
+  box-shadow: 0 0 14px var(--sky-glow);
+  transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
 }
 
-#playBtn:hover {
-  background: #ffc04d;
+#lmPlayBtn {
+  width: 42px;
+  height: 42px;
 }
 
-#playBtn svg {
+#playBtn:hover,
+#lmPlayBtn:hover {
+  background: #7dd3fc;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.7);
+  transform: scale(1.05);
+}
+
+#playBtn svg,
+#lmPlayBtn svg {
   width: 16px;
   height: 16px;
+}
+
+#lmPlayBtn svg {
+  width: 18px;
+  height: 18px;
 }
 
 .progress-wrap {
@@ -522,17 +576,30 @@ input[type="range"]::-webkit-slider-thumb {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: var(--amber);
+  background: var(--pink);
+  box-shadow: 0 0 10px var(--pink-glow);
   margin-top: 0;
   cursor: pointer;
 }
 
-input[type="range"]#seek {
-  background: linear-gradient(to right, var(--amber) 0%, var(--amber) 0%, var(--panel2) 0%);
+input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: none;
+  border-radius: 50%;
+  background: var(--pink);
+  box-shadow: 0 0 10px var(--pink-glow);
+  cursor: pointer;
 }
 
-input[type="range"]#volume {
-  background: linear-gradient(to right, var(--amber) 70%, var(--amber) 70%, var(--panel2) 70%);
+input[type="range"]#seek,
+input[type="range"]#lmSeek {
+  background: linear-gradient(to right, var(--sky) 0%, var(--sky) 0%, var(--panel2) 0%);
+}
+
+input[type="range"]#volume,
+input[type="range"]#lmVolume {
+  background: linear-gradient(to right, var(--sky) 70%, var(--sky) 70%, var(--panel2) 70%);
 }
 
 .vol-wrap {
@@ -878,15 +945,15 @@ input[type="range"]#volume {
 }
 
 .lm-lrc-item:hover {
-  color: rgba(237, 239, 242, 0.9);
-  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+  background: transparent;
 }
 
 .lm-lrc-item.active {
   font-size: clamp(1.22rem, 1.9vw, 1.55rem);
   font-weight: 700;
-  color: var(--amber);
-  text-shadow: 0 0 20px rgba(255, 176, 32, .45);
+  color: var(--sky);
+  text-shadow: 0 0 22px var(--sky-glow);
   transform: translateX(4px) scale(1.02);
 }
 
@@ -958,13 +1025,193 @@ input[type="range"]#volume {
   }
 }
 
-@media (max-width: 768px) {
-  .track-info {
-    width: 110px;
+@media (max-width: 768px) and (orientation: portrait) {
+  /* ---- 移动端背景壁纸方案二：双层高斯模糊与完整横屏画卷展示 ---- */
+  .bg-slide {
+    background-size: 0 0 !important;
+    overflow: hidden;
   }
 
+  /* 底层：高斯模糊全屏氛围铺底（解决留白黑边，与原图色彩 100% 融合） */
+  .bg-slide::before {
+    content: '';
+    position: absolute;
+    inset: -30px;
+    background-image: inherit;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    filter: blur(28px) brightness(0.55) saturate(1.25);
+    transform: scale(1.1);
+  }
+
+  /* 顶层：16:9 宽屏原画 100% 完整展现（上下边缘柔和渐变羽化，自然融入氛围底色） */
+  .bg-slide::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 48.5%;
+    transform: translateY(-50%);
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background-image: inherit;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, 0.6) 8%,
+      black 20%,
+      black 80%,
+      rgba(0, 0, 0, 0.6) 92%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, 0.6) 8%,
+      black 20%,
+      black 80%,
+      rgba(0, 0, 0, 0.6) 92%,
+      transparent 100%
+    );
+  }
+}
+
+@media (max-width: 768px) {
+  /* 移动端主区布局：时间模块置顶，天气模块置底，中间完整留给壁纸原画 */
+  main {
+    justify-content: space-between;
+    padding: clamp(6px, 1.5vh, 14px) 20px clamp(8px, 1.8vh, 16px);
+  }
+
+  .time-wrap {
+    margin-top: clamp(28px, 5.5vh, 52px);
+    gap: 4px;
+    z-index: 2;
+  }
+
+  .clock {
+    font-size: clamp(2.2rem, 10.5vw, 3.3rem);
+  }
+
+  .date {
+    font-size: clamp(.74rem, 3.1vw, .84rem);
+  }
+
+  .weather {
+    margin-top: auto;
+    margin-bottom: clamp(2px, 1vh, 8px);
+    padding: 10px 18px;
+    z-index: 2;
+    background: rgba(16, 20, 26, 0.22);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 16px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  }
+
+  /* 移动端方案 A：双行自适应弹性布局 */
+  footer.player {
+    flex-wrap: wrap;
+    padding: 10px 14px 10px;
+    gap: 8px 10px;
+    margin: 0 clamp(10px, 3vw, 16px) clamp(10px, 2.5vh, 16px);
+    border-radius: 14px;
+  }
+
+  /* 第一行左侧：封面与歌曲信息（自适应撑开剩余空间，文字不折行） */
+  .track-art {
+    order: 1;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+  }
+
+  .track-info {
+    order: 2;
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+  }
+
+  .track-title {
+    font-size: .84rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .track-sub {
+    font-size: .7rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 第一行右侧：主控按键与歌单按钮 */
+  .controls {
+    order: 3;
+    gap: 4px;
+    margin-left: auto;
+    flex: 0 0 auto;
+  }
+
+  .ctrl-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .ctrl-btn svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  #playBtn {
+    width: 34px;
+    height: 34px;
+  }
+
+  #playBtn svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  #listBtn {
+    order: 4;
+    flex: 0 0 auto;
+  }
+
+  /* 第二行：整行进度条与时间 */
+  .progress-wrap {
+    order: 5;
+    flex: 1 0 100%;
+    width: 100%;
+    gap: 8px;
+    padding-top: 2px;
+  }
+
+  .time {
+    font-size: .68rem;
+    width: 34px;
+    flex: 0 0 34px;
+  }
+
+  /* 移动端隐藏音量控件（手机有物理音量键，避免挤占空间） */
   .vol-wrap {
-    width: 75px;
+    display: none !important;
+  }
+
+  /* 移动端歌单弹窗自适应宽度 */
+  .playlist-pop {
+    right: 8px;
+    left: 8px;
+    width: auto;
+    max-width: none;
+    bottom: calc(100% + 8px);
   }
 
   .lm-body {
@@ -1007,17 +1254,247 @@ input[type="range"]#volume {
 }
 
 @media (max-width: 640px) {
-  .track-info {
-    display: none;
-  }
-
-  .vol-wrap {
-    display: none;
-  }
-
   header {
     padding: 16px 16px 0;
   }
+}
+
+/* 全局浮动轻提示 */
+.app-toast {
+  position: fixed;
+  top: 26px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-18px);
+  background: rgba(16, 20, 26, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #EDEFF2;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 10px 22px;
+  border-radius: 20px;
+  font-size: .86rem;
+  letter-spacing: .02em;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+  z-index: 9999;
+}
+
+.app-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* QQ 好友名片弹窗 */
+.qq-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .25s ease, visibility .25s ease;
+}
+
+.qq-modal.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.qq-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.qq-modal-card {
+  position: relative;
+  z-index: 2;
+  width: 90%;
+  max-width: 360px;
+  background: rgba(20, 24, 32, 0.82);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 24px;
+  padding: 32px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.14);
+  transform: translateY(16px) scale(0.96);
+  transition: transform .25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.qq-modal.open .qq-modal-card {
+  transform: translateY(0) scale(1);
+}
+
+.qq-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+
+.qq-close-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  transform: scale(1.08);
+}
+
+.qq-close-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.qq-avatar-wrap {
+  position: relative;
+  width: 82px;
+  height: 82px;
+  margin-bottom: 14px;
+}
+
+.qq-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid rgba(56, 189, 248, 0.45);
+  box-shadow: 0 0 22px rgba(56, 189, 248, 0.35);
+  object-fit: cover;
+  background: var(--panel2);
+}
+
+.qq-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #12b7f5;
+  color: #fff;
+  font-size: .65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .4);
+}
+
+.qq-card-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+.qq-num-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 8px 18px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, transform .2s ease;
+}
+
+.qq-num-box:hover {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.5);
+  transform: scale(1.03);
+}
+
+.qq-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--sky);
+  letter-spacing: .04em;
+}
+
+.copy-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+  transition: color .2s ease;
+}
+
+.qq-num-box:hover .copy-icon {
+  color: var(--sky);
+}
+
+.qq-tip {
+  font-size: .76rem;
+  color: var(--muted);
+  margin-top: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+  transition: color .2s ease;
+}
+
+.qq-tip.copied {
+  color: #34d399;
+}
+
+.qq-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.qq-btn {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 12px;
+  font-size: .86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s ease;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qq-btn-primary {
+  background: var(--sky);
+  color: #081a28;
+  box-shadow: 0 4px 14px var(--sky-glow);
+}
+
+.qq-btn-primary:hover {
+  background: #7dd3fc;
+  transform: translateY(-1px);
+}
+
+.qq-btn-ghost {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.qq-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
+}
+
+.app-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 @media (prefers-reduced-motion: reduce) {

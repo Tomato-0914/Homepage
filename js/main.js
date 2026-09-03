@@ -61,29 +61,128 @@ initBackgroundSlider();
 const LINKS = [
   { name: 'GitHub', url: 'https://github.com/Tomato-0914', icon: 'github' },
   { name: 'Gitee', url: 'https://gitee.com/tb_siran', icon: 'gitee' },
+  { name: 'QQ', url: 'https://qm.qq.com/q/CQafnoy3Zu', uin: '811749489', icon: 'qq' },
   { name: 'Twitter / X', url: 'https://x.com/yourname', icon: 'x' },
   { name: '邮箱', url: 'tb_siran@163.com', icon: 'mail' },
 ];
 const ICONS = {
   github: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.8 5.4.8 11.7c0 5 3.2 9.2 7.7 10.7.6.1.8-.2.8-.6v-2.2c-3.1.7-3.8-1.3-3.8-1.3-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 1.7 2.6 1.2 3.2.9.1-.7.4-1.2.7-1.5-2.5-.3-5.1-1.2-5.1-5.5 0-1.2.4-2.2 1.2-3-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.7.8 1.2 1.8 1.2 3 0 4.3-2.6 5.2-5.1 5.5.4.4.8 1.1.8 2.2v3.3c0 .4.2.7.8.6 4.5-1.5 7.7-5.7 7.7-10.7C23.2 5.4 18.3.5 12 .5z"/></svg>`,
   gitee: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.6.5.5 5.6.5 12S5.6 23.5 12 23.5 23.5 18.4 23.5 12 18.4.5 12 .5zm5.7 10.4c0 .3-.2.5-.5.5H12c-.3 0-.5.2-.5.5v.5c0 .3.2.5.5.5h3.5c.3 0 .5.2.5.5v2.4c0 1.4-1.2 2.6-2.6 2.6H8.6c-.3 0-.5-.2-.5-.5V11c0-1.4 1.2-2.6 2.6-2.6h6.5c.3 0 .5.2.5.5v2z"/></svg>`,
+  qq: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.9139 14.529C19.7336 13.955 19.4877 13.2856 19.2385 12.643L18.3288 10.3969C18.3295 10.371 18.3408 9.92858 18.3408 9.70053C18.3408 5.8599 16.5082 2.00037 12.0009 2C7.49403 2.00037 5.66113 5.8599 5.66113 9.70053C5.66113 9.92858 5.67237 10.371 5.67312 10.3969L4.76379 12.643C4.51453 13.2856 4.26827 13.955 4.08798 14.529C3.2285 17.2657 3.507 18.3982 3.71915 18.4238C4.17419 18.4779 5.49021 16.3635 5.49021 16.3635C5.49021 17.5879 6.12741 19.1858 7.5064 20.3398C6.99064 20.4971 6.35868 20.7388 5.95237 21.0355C5.58729 21.3025 5.63302 21.5743 5.69861 21.6841C5.9876 22.1661 10.6542 21.9918 12.0017 21.8417C13.3488 21.9918 18.0158 22.1661 18.3044 21.6841C18.3704 21.5743 18.4157 21.3025 18.0507 21.0355C17.6443 20.7388 17.012 20.4971 16.4959 20.3395C17.8745 19.1858 18.5117 17.5879 18.5117 16.3635C18.5117 16.3635 19.8281 18.4779 20.2831 18.4238C20.4949 18.3982 20.7734 17.2657 19.9139 14.529Z"/></svg>`,
   x: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-7l-5.5-7.2L4.5 22H1.4l8.1-9.3L1 2h7.2l5 6.6L18.9 2zm-1.2 18h1.7L7.4 3.9H5.6L17.7 20z"/></svg>`,
   mail: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>`,
   link: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>`,
 };
+function showToast(msg) {
+  let toast = document.getElementById('appToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'appToast';
+    toast.className = 'app-toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => {
+    toast.classList.remove('show');
+  }, 2600);
+}
+
 const linkRow = document.getElementById('linkRow');
+const qqModal = document.getElementById('qqModal');
+const qqModalBackdrop = document.getElementById('qqModalBackdrop');
+const qqCloseBtn = document.getElementById('qqCloseBtn');
+const qqAvatar = document.getElementById('qqAvatar');
+const qqNumText = document.getElementById('qqNumText');
+const qqNumBox = document.getElementById('qqNumBox');
+const qqCopyTip = document.getElementById('qqCopyTip');
+const qqLaunchBtn = document.getElementById('qqLaunchBtn');
+const qqCopyBtn = document.getElementById('qqCopyBtn');
+
+let currentQQ = '811749489';
+
+function copyCurrentQQ(customMsg) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(currentQQ).catch(() => {});
+  }
+  if (qqCopyTip) {
+    qqCopyTip.textContent = customMsg || '已成功复制 QQ 号！可在 QQ 搜索框直接粘贴';
+    qqCopyTip.classList.add('copied');
+    setTimeout(() => {
+      if (qqCopyTip) qqCopyTip.classList.remove('copied');
+    }, 2000);
+  }
+  showToast(`QQ号 [${currentQQ}] 已复制到剪贴板`);
+}
+
+function openQQModal(qqNum) {
+  currentQQ = qqNum;
+  if (qqNumText) qqNumText.textContent = qqNum;
+  if (qqAvatar) qqAvatar.src = `https://q1.qlogo.cn/g?b=qq&nk=${qqNum}&s=640`;
+  if (qqCopyTip) {
+    qqCopyTip.textContent = '已自动复制到剪贴板，可在 QQ 中直接粘贴搜索';
+    qqCopyTip.classList.remove('copied');
+  }
+  copyCurrentQQ('已自动复制 QQ 号！可在 QQ 搜索框直接粘贴');
+  if (qqModal) qqModal.classList.add('open');
+
+  // 如果是手机端，尝试唤起手机QQ原生个人名片
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  if (isMobile) {
+    setTimeout(() => {
+      window.location.href = `mqqapi://card/show_pslcard?src_type=internal&source=sharecard&version=1&uin=${qqNum}`;
+    }, 300);
+  }
+}
+
+function closeQQModal() {
+  if (qqModal) qqModal.classList.remove('open');
+}
+
+if (qqCloseBtn) qqCloseBtn.addEventListener('click', closeQQModal);
+if (qqModalBackdrop) qqModalBackdrop.addEventListener('click', closeQQModal);
+if (qqNumBox) qqNumBox.addEventListener('click', () => copyCurrentQQ('已成功复制 QQ 号！可在 QQ 搜索框直接粘贴'));
+if (qqCopyBtn) qqCopyBtn.addEventListener('click', () => copyCurrentQQ('已成功复制 QQ 号！可在 QQ 搜索框直接粘贴'));
+if (qqLaunchBtn) {
+  qqLaunchBtn.addEventListener('click', () => {
+    window.open('https://qm.qq.com/q/CQafnoy3Zu', '_blank');
+  });
+}
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && qqModal && qqModal.classList.contains('open')) {
+    closeQQModal();
+  }
+});
+
 LINKS.forEach(l => {
   const a = document.createElement('a');
   let href = l.url;
-  if (l.icon === 'mail' || (typeof href === 'string' && href.includes('@') && !href.startsWith('mailto:') && !href.startsWith('http'))) {
-    href = 'mailto:' + href;
-  }
-  a.href = href;
-  a.title = l.name;
-  if (!href.startsWith('mailto:')) {
+
+  if (l.icon === 'qq') {
+    a.href = l.url;
     a.target = '_blank';
     a.rel = 'noopener';
+    a.title = `${l.name}：点击加我为QQ好友（官方直达通道）`;
+    a.onclick = () => {
+      const qqNum = l.uin || '811749489';
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(qqNum).catch(() => {});
+      }
+      showToast(`正在唤起 QQ 官方名片，QQ号 [${qqNum}] 已复制`);
+    };
+  } else {
+    if (l.icon === 'mail' || (typeof href === 'string' && href.includes('@') && !href.startsWith('mailto:') && !href.startsWith('http'))) {
+      href = 'mailto:' + href;
+    }
+    a.href = href;
+    a.title = l.name;
+    if (!href.startsWith('mailto:')) {
+      a.target = '_blank';
+      a.rel = 'noopener';
+    }
   }
+
   a.innerHTML = ICONS[l.icon] || ICONS.link;
   linkRow.appendChild(a);
 });
@@ -195,6 +294,7 @@ else tryGeolocate();
    用同目录下的 生成歌单.html 工具选中你的 music 文件夹，一键生成
    playlist.json 放进 music/ 目录，网页会自动读取，不需要手改代码。
 */
+const playerBar = document.getElementById('playerBar');
 const audio = document.getElementById('audio');
 const playerEmpty = document.getElementById('playerEmpty');
 const trackArt = document.getElementById('trackArt');
@@ -468,12 +568,18 @@ function loadTrack(i, autoplay = true) {
 }
 
 function showPlayerUI() {
+  playerBar.classList.add('has-track');
+  if (PLAYLIST.length > 1) {
+    playerBar.classList.add('has-playlist');
+  } else {
+    playerBar.classList.remove('has-playlist');
+  }
   playerEmpty.style.display = 'none';
-  trackInfo.style.display = 'block';
-  controlsWrap.style.display = 'flex';
-  progressWrap.style.display = 'flex';
-  volWrap.style.display = 'flex';
-  if (PLAYLIST.length > 1) listBtn.style.display = 'flex';
+  trackInfo.style.display = '';
+  controlsWrap.style.display = '';
+  progressWrap.style.display = '';
+  volWrap.style.display = '';
+  listBtn.style.display = '';
 }
 
 async function initPlayer() {
@@ -497,7 +603,8 @@ async function initPlayer() {
       }
     }
   } catch (e) { /* 没有清单文件或读取失败，走下面的空状态 */ }
-  playerEmpty.style.display = 'flex';
+  playerBar.classList.remove('has-track', 'has-playlist');
+  playerEmpty.style.display = '';
   playerEmpty.innerHTML = '还没有歌单 —— 用「生成歌单.html」工具选中 music 文件夹，一键生成 <b>music/playlist.json</b>';
 }
 initPlayer();
@@ -573,7 +680,7 @@ audio.addEventListener('timeupdate', () => {
   lmCurTime.textContent = curFormatted;
 
   const pct = audio.duration ? (audio.currentTime / audio.duration * 100) : 0;
-  const gradient = `linear-gradient(to right, var(--amber) ${pct}%, var(--panel2) ${pct}%)`;
+  const gradient = `linear-gradient(to right, var(--sky) ${pct}%, var(--panel2) ${pct}%)`;
   seek.style.background = gradient;
   lmSeek.style.background = gradient;
 
@@ -593,7 +700,7 @@ let lastVol = 70;
 const updateVolState = () => {
   const isMuted = audio.muted || Number(volume.value) === 0;
   const v = isMuted ? 0 : volume.value;
-  const volGradient = `linear-gradient(to right, var(--amber) ${v}%, var(--panel2) ${v}%)`;
+  const volGradient = `linear-gradient(to right, var(--sky) ${v}%, var(--panel2) ${v}%)`;
   volume.style.background = volGradient;
   lmVolume.style.background = volGradient;
   volume.value = v;
