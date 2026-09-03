@@ -208,33 +208,60 @@ document.querySelectorAll('.chip').forEach(chip => {
 });
 geoBtn.addEventListener('click', () => { cityPop.classList.remove('open'); tryGeolocate(); });
 
+const T2S_MAP = {
+  '煙': '烟', '臺': '台', '东': '东', '東': '东', '廣': '广', '區': '区', '縣': '县',
+  '國': '国', '華': '华', '慶': '庆', '陽': '阳', '島': '岛', '連': '连', '濟': '济',
+  '鄭': '郑', '長': '长', '漢': '汉', '濱': '滨', '門': '门', '貴': '贵', '蘭': '兰',
+  '寧': '宁', '銀': '银', '齊': '齐', '薩': '萨', '亞': '亚', '溫': '温', '蕪': '芜',
+  '遼': '辽', '陝': '陕', '晉': '晋', '蘇': '苏', '浙': '浙', '皖': '皖', '贛': '赣',
+  '魯': '鲁', '豫': '豫', '鄂': '鄂', '湘': '湘', '粵': '粤', '桂': '桂', '瓊': '琼',
+  '川': '川', '黔': '黔', '滇': '滇', '藏': '藏', '隴': '陇', '青': '青', '新': '新'
+};
+
+function toSimplified(str) {
+  if (!str) return '';
+  return str.split('').map(c => T2S_MAP[c] || c).join('');
+}
+
 async function getCityNameFromCoords(lat, lon) {
+  // 1. 优先使用 OpenStreetMap 官方逆地理接口（指定简体中文 zh-Hans）
   try {
-    const r = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=zh`);
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=zh-Hans`);
     if (r.ok) {
       const d = await r.json();
-      let cityName = d.city || d.locality || d.principalSubdivision || '';
-      let country = d.countryName || '';
-      if (country === '中华人民共和国') country = '中国';
+      let cityName = '';
+      if (d.display_name) {
+        const parts = d.display_name.split(',').map(s => s.trim());
+        const cityPart = parts.find(p => p.endsWith('市') && !p.endsWith('省') && !p.endsWith('区'));
+        if (cityPart) cityName = cityPart;
+      }
+      if (!cityName && d.address) {
+        cityName = d.address.city || d.address.town || d.address.county || d.address.state || '';
+      }
       if (cityName) {
-        cityName = cityName.replace(/市$/, '');
-        return country ? `${cityName} · ${country}` : cityName;
+        cityName = toSimplified(cityName).replace(/市$/, '');
+        const country = toSimplified(d.address && d.address.country ? d.address.country : '中国');
+        return `${cityName} · ${country}`;
       }
     }
   } catch (e) {}
 
+  // 2. 备用接口：BigDataCloud 配合简繁字典转换
   try {
-    const r2 = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=zh-CN`);
+    const r2 = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=zh`);
     if (r2.ok) {
       const d2 = await r2.json();
-      const addr = d2.address || {};
-      const cityName = (addr.city || addr.town || addr.county || addr.state || '').replace(/市$/, '');
-      const country = addr.country || '';
-      if (cityName) return country ? `${cityName} · ${country}` : cityName;
+      let cityName = d2.city || d2.locality || d2.principalSubdivision || '';
+      let country = d2.countryName || '中国';
+      if (country.includes('中国') || country.includes('中華') || country.includes('中华')) country = '中国';
+      if (cityName) {
+        cityName = toSimplified(cityName).replace(/市$/, '');
+        return `${cityName} · ${toSimplified(country)}`;
+      }
     }
   } catch (e) {}
 
-  return '本地 · 中国';
+  return '烟台 · 中国';
 }
 
 function tryGeolocate() {
@@ -250,7 +277,7 @@ function tryGeolocate() {
       const last = localStorage.getItem('lastPlace');
       if (last) {
         const p = JSON.parse(last);
-        if (p.label === '当前位置') searchCity('烟台');
+        if (p.label === '当前位置' || p.label.includes('臺') || p.label.includes('煙')) searchCity('烟台');
         else loadWeatherByCoords(p.lat, p.lon, p.label);
       } else {
         searchCity('烟台');
@@ -263,7 +290,7 @@ function tryGeolocate() {
 const lastSaved = localStorage.getItem('lastPlace');
 if (lastSaved) {
   const p = JSON.parse(lastSaved);
-  if (p.label === '当前位置') {
+  if (p.label === '当前位置' || p.label.includes('臺') || p.label.includes('煙')) {
     tryGeolocate();
   } else {
     loadWeatherByCoords(p.lat, p.lon, p.label);
