@@ -72,90 +72,9 @@ const ICONS = {
   x: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-7l-5.5-7.2L4.5 22H1.4l8.1-9.3L1 2h7.2l5 6.6L18.9 2zm-1.2 18h1.7L7.4 3.9H5.6L17.7 20z"/></svg>`,
   mail: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>`,
   link: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>`,
-  qq: `<svg viewBox="0 0 32 32" fill="currentColor"><path d="M29.11 26.278c-.72.087-2.804-3.296-2.804-3.296 0 1.959-1.009 4.515-3.191 6.362 1.052.325 3.428 1.198 2.863 2.151-.457.772-7.844.493-9.977.252-2.133.24-9.52.519-9.977-.252-.565-.953 1.807-1.826 2.861-2.151-2.182-1.846-3.191-4.403-3.191-6.362 0 0-2.083 3.384-2.804 3.296-.335-.041-.776-1.853.584-6.231.641-2.064 1.375-3.78 2.509-6.611C5.792 6.13 8.811.001 15.999.001c7.109.001 10.197 6.008 10.017 13.435 1.132 2.826 1.869 4.553 2.509 6.611 1.361 4.379.92 6.191.584 6.231z"/></svg>`,
 };
-function showToast(msg) {
-  let toast = document.getElementById('appToast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'appToast';
-    toast.className = 'app-toast';
-    document.body.appendChild(toast);
-  }
-  toast.textContent = msg;
-  toast.classList.add('show');
-  clearTimeout(toast._timer);
-  toast._timer = setTimeout(() => {
-    toast.classList.remove('show');
-  }, 2600);
-}
 
 const linkRow = document.getElementById('linkRow');
-const qqModal = document.getElementById('qqModal');
-const qqModalBackdrop = document.getElementById('qqModalBackdrop');
-const qqCloseBtn = document.getElementById('qqCloseBtn');
-const qqAvatar = document.getElementById('qqAvatar');
-const qqNumText = document.getElementById('qqNumText');
-const qqNumBox = document.getElementById('qqNumBox');
-const qqCopyTip = document.getElementById('qqCopyTip');
-const qqLaunchBtn = document.getElementById('qqLaunchBtn');
-const qqCopyBtn = document.getElementById('qqCopyBtn');
-
-let currentQQ = '811749489';
-
-function copyCurrentQQ(customMsg) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(currentQQ).catch(() => {});
-  }
-  if (qqCopyTip) {
-    qqCopyTip.textContent = customMsg || '已成功复制 QQ 号！可在 QQ 搜索框直接粘贴';
-    qqCopyTip.classList.add('copied');
-    setTimeout(() => {
-      if (qqCopyTip) qqCopyTip.classList.remove('copied');
-    }, 2000);
-  }
-  showToast(`QQ号 [${currentQQ}] 已复制到剪贴板`);
-}
-
-function openQQModal(qqNum) {
-  currentQQ = qqNum;
-  if (qqNumText) qqNumText.textContent = qqNum;
-  if (qqAvatar) qqAvatar.src = `https://q1.qlogo.cn/g?b=qq&nk=${qqNum}&s=640`;
-  if (qqCopyTip) {
-    qqCopyTip.textContent = '已自动复制到剪贴板，可在 QQ 中直接粘贴搜索';
-    qqCopyTip.classList.remove('copied');
-  }
-  copyCurrentQQ('已自动复制 QQ 号！可在 QQ 搜索框直接粘贴');
-  if (qqModal) qqModal.classList.add('open');
-
-  // 如果是手机端，尝试唤起手机QQ原生个人名片
-  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-  if (isMobile) {
-    setTimeout(() => {
-      window.location.href = `mqqapi://card/show_pslcard?src_type=internal&source=sharecard&version=1&uin=${qqNum}`;
-    }, 300);
-  }
-}
-
-function closeQQModal() {
-  if (qqModal) qqModal.classList.remove('open');
-}
-
-if (qqCloseBtn) qqCloseBtn.addEventListener('click', closeQQModal);
-if (qqModalBackdrop) qqModalBackdrop.addEventListener('click', closeQQModal);
-if (qqNumBox) qqNumBox.addEventListener('click', () => copyCurrentQQ('已成功复制 QQ 号！可在 QQ 搜索框直接粘贴'));
-if (qqCopyBtn) qqCopyBtn.addEventListener('click', () => copyCurrentQQ('已成功复制 QQ 号！可在 QQ 搜索框直接粘贴'));
-if (qqLaunchBtn) {
-  qqLaunchBtn.addEventListener('click', () => {
-    window.open('https://qm.qq.com/q/CQafnoy3Zu', '_blank');
-  });
-}
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && qqModal && qqModal.classList.contains('open')) {
-    closeQQModal();
-  }
-});
-
 LINKS.forEach(l => {
   const a = document.createElement('a');
   let href = l.url;
@@ -166,12 +85,6 @@ LINKS.forEach(l => {
     a.title = `${l.name}：${qqNum}（点击查看好友资料卡）`;
     a.onclick = (e) => {
       e.preventDefault();
-
-      // 复制 QQ 号到剪贴板，方便备用
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(qqNum).catch(() => {});
-      }
-
       const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
       if (isMobile) {
         // 手机 PE 端：纯好友名片协议（直接在手机 QQ 打开好友资料卡）
@@ -191,8 +104,6 @@ LINKS.forEach(l => {
         document.body.appendChild(iframe);
         setTimeout(() => iframe.remove(), 1000);
       }
-
-      showToast(`已展示 QQ 好友资料卡，QQ号 [${qqNum}] 已复制`);
     };
   } else {
     if (l.icon === 'mail' || (typeof href === 'string' && href.includes('@') && !href.startsWith('mailto:') && !href.startsWith('http'))) {
@@ -297,21 +208,69 @@ document.querySelectorAll('.chip').forEach(chip => {
 });
 geoBtn.addEventListener('click', () => { cityPop.classList.remove('open'); tryGeolocate(); });
 
+async function getCityNameFromCoords(lat, lon) {
+  try {
+    const r = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=zh`);
+    if (r.ok) {
+      const d = await r.json();
+      let cityName = d.city || d.locality || d.principalSubdivision || '';
+      let country = d.countryName || '';
+      if (country === '中华人民共和国') country = '中国';
+      if (cityName) {
+        cityName = cityName.replace(/市$/, '');
+        return country ? `${cityName} · ${country}` : cityName;
+      }
+    }
+  } catch (e) {}
+
+  try {
+    const r2 = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=zh-CN`);
+    if (r2.ok) {
+      const d2 = await r2.json();
+      const addr = d2.address || {};
+      const cityName = (addr.city || addr.town || addr.county || addr.state || '').replace(/市$/, '');
+      const country = addr.country || '';
+      if (cityName) return country ? `${cityName} · ${country}` : cityName;
+    }
+  } catch (e) {}
+
+  return '本地 · 中国';
+}
+
 function tryGeolocate() {
-  if (!navigator.geolocation) { searchCity('东京'); return; }
+  if (!navigator.geolocation) { searchCity('烟台'); return; }
+  wPlace.textContent = '定位中…';
   navigator.geolocation.getCurrentPosition(
-    pos => loadWeatherByCoords(pos.coords.latitude, pos.coords.longitude, '当前位置'),
+    async pos => {
+      const { latitude: lat, longitude: lon } = pos.coords;
+      const label = await getCityNameFromCoords(lat, lon);
+      loadWeatherByCoords(lat, lon, label);
+    },
     () => {
       const last = localStorage.getItem('lastPlace');
-      if (last) { const p = JSON.parse(last); loadWeatherByCoords(p.lat, p.lon, p.label); }
-      else searchCity('东京');
+      if (last) {
+        const p = JSON.parse(last);
+        if (p.label === '当前位置') searchCity('烟台');
+        else loadWeatherByCoords(p.lat, p.lon, p.label);
+      } else {
+        searchCity('烟台');
+      }
     },
     { timeout: 6000 }
   );
 }
+
 const lastSaved = localStorage.getItem('lastPlace');
-if (lastSaved) { const p = JSON.parse(lastSaved); loadWeatherByCoords(p.lat, p.lon, p.label); }
-else tryGeolocate();
+if (lastSaved) {
+  const p = JSON.parse(lastSaved);
+  if (p.label === '当前位置') {
+    tryGeolocate();
+  } else {
+    loadWeatherByCoords(p.lat, p.lon, p.label);
+  }
+} else {
+  tryGeolocate();
+}
 
 /* ============ 音乐播放器（自动读取 music/playlist.json） ============
    用同目录下的 生成歌单.html 工具选中你的 music 文件夹，一键生成
