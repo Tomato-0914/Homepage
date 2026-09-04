@@ -220,6 +220,343 @@
 
   <script src="music/playlist.js" onerror="window.PLAYLIST_DATA=null"></script>
   <script src="js/main.js"></script>
+<!-- ==================== AI 聊天扩展组件 开始 ==================== -->
+<style>
+  /* 悬浮图标与弹窗样式 */
+  #ai-chat-launcher {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 50px;
+    height: 50px;
+    background: #2563eb;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    z-index: 99999;
+    transition: transform 0.2s ease;
+  }
+  #ai-chat-launcher:hover {
+    transform: scale(1.08);
+  }
+  #ai-chat-modal {
+    display: none;
+    position: fixed;
+    bottom: 84px;
+    right: 24px;
+    width: 380px;
+    max-width: calc(100vw - 32px);
+    height: 540px;
+    max-height: calc(100vh - 120px);
+    background: #18181b;
+    border: 1px solid #27272a;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    flex-direction: column;
+    z-index: 99999;
+    color: #fafafa;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden;
+  }
+  .ai-top-bar {
+    padding: 10px 12px;
+    border-bottom: 1px solid #27272a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #09090b;
+    gap: 8px;
+  }
+  .ai-select {
+    background: #27272a;
+    color: #fff;
+    border: 1px solid #3f3f46;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    max-width: 150px;
+    outline: none;
+    cursor: pointer;
+  }
+  .ai-btn-sm {
+    background: #27272a;
+    color: #d4d4d8;
+    border: 1px solid #3f3f46;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .ai-btn-sm:hover {
+    background: #3f3f46;
+  }
+  .ai-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #71717a;
+    display: inline-block;
+  }
+  #ai-chat-messages {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .ai-input-box {
+    padding: 10px;
+    border-top: 1px solid #27272a;
+    background: #09090b;
+    display: flex;
+    gap: 6px;
+  }
+  .ai-textarea {
+    flex: 1;
+    height: 38px;
+    background: #27272a;
+    border: 1px solid #3f3f46;
+    border-radius: 6px;
+    color: #fff;
+    padding: 8px;
+    resize: none;
+    outline: none;
+    font-size: 13px;
+  }
+  .ai-send-btn {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    padding: 0 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+  }
+</style>
+
+<!-- 悬浮图标 -->
+<div id="ai-chat-launcher" onclick="toggleAIChat()" title="AI 助手">
+  <svg width="24" height="24" fill="#ffffff" viewBox="0 0 24 24">
+    <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.636-.827C8.583 21.433 10.237 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/>
+  </svg>
+</div>
+
+<!-- 弹出的聊天抽屉 -->
+<div id="ai-chat-modal">
+  <div class="ai-top-bar">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span id="ai-conn-status" class="ai-status-dot" title="连通状态"></span>
+      <select id="ai-model-select" class="ai-select">
+        <option value="">点击测试获取模型</option>
+      </select>
+      <button class="ai-btn-sm" onclick="checkConnectionAndLoad()">测试</button>
+      <button class="ai-btn-sm" onclick="promptKeyConfig()" title="设置Key">🔑</button>
+    </div>
+    <span onclick="toggleAIChat()" style="cursor: pointer; font-size: 18px; color: #a1a1aa; padding: 0 4px;">&times;</span>
+  </div>
+
+  <div id="ai-chat-messages"></div>
+
+  <div class="ai-input-box">
+    <textarea id="ai-chat-input" class="ai-textarea" placeholder="发送消息 (Enter 发送)..."></textarea>
+    <button class="ai-send-btn" onclick="sendAIMessage()">发送</button>
+  </div>
+</div>
+
+<script>
+  // ==================== 1. 基础服务与人格预设配置 ====================
+  const AI_SETTINGS = {
+    // 填入你的反代地址（注意结尾不要带斜杠，如：https://api.yourproxy.com/v1）
+    baseUrl: "https://你的反代域名/v1",
+    
+    // 如果是只给你自己用，且不想每次都输入，可填在这里；
+    // 但推荐留空，通过面板上的 🔑 图标在浏览器本地保存，防止公开仓库泄露！
+    defaultKey: "", 
+    
+    // AI 内置人格预设
+    systemPrompt: `你是一个搭载在站长个人主页上的智能助理与向导。
+你的性格特点：亲切友好、幽默风趣且严谨专业。
+任务说明：
+1. 热情欢迎来到站长主页的访客，解答访客对站长背景、项目与技术的问题；
+2. 保持回答精炼生动，条理清晰，乐于提供技术探讨和友好的日常交流。`
+  };
+
+  // 读取本地存储的 Key 或默认配置
+  function getActiveApiKey() {
+    return localStorage.getItem("homepage_ai_key") || AI_SETTINGS.defaultKey;
+  }
+
+  // 允许在前端快捷修改与保存 Key 到浏览器本地
+  function promptKeyConfig() {
+    const currentKey = getActiveApiKey();
+    const newKey = prompt("请输入你的 API Key (将仅保存在当前浏览器的 LocalStorage 中，不会上传到 GitHub):", currentKey);
+    if (newKey !== null) {
+      localStorage.setItem("homepage_ai_key", newKey.trim());
+      alert("Key 已更新！正在尝试拉取模型...");
+      checkConnectionAndLoad();
+    }
+  }
+
+  // 消息历史列表（内置人格注入）
+  let conversationHistory = [
+    { role: "system", content: AI_SETTINGS.systemPrompt }
+  ];
+
+  // 弹窗显隐控制
+  function toggleAIChat() {
+    const modal = document.getElementById("ai-chat-modal");
+    const isHidden = modal.style.display === "none" || modal.style.display === "";
+    modal.style.display = isHidden ? "flex" : "none";
+
+    // 首次打开自动测试连通性并拉取模型
+    if (isHidden && document.getElementById("ai-model-select").options.length <= 1) {
+      checkConnectionAndLoad();
+      // 输出打招呼
+      if (document.getElementById("ai-chat-messages").children.length === 0) {
+        renderBubble("assistant", "你好！我是本站的 AI 向导，很高兴见到你！有什么我可以帮你的吗？");
+      }
+    }
+  }
+
+  // 状态指示灯变色 (黄: 测试中, 绿: 正常, 红: 异常)
+  function setStatus(state) {
+    const dot = document.getElementById("ai-conn-status");
+    if (state === "loading") dot.style.background = "#eab308";
+    else if (state === "ok") dot.style.background = "#22c55e";
+    else dot.style.background = "#ef4444";
+  }
+
+  // ==================== 2. 连通性测试与模型动态加载 ====================
+  async function checkConnectionAndLoad() {
+    const select = document.getElementById("ai-model-select");
+    const key = getActiveApiKey();
+    setStatus("loading");
+
+    try {
+      const headers = {};
+      if (key) headers["Authorization"] = `Bearer ${key}`;
+
+      const res = await fetch(`${AI_SETTINGS.baseUrl}/models`, {
+        method: "GET",
+        headers: headers
+      });
+
+      if (!res.ok) throw new Error("Status: " + res.status);
+
+      const json = await res.json();
+      const models = json.data || [];
+
+      select.innerHTML = "";
+      if (models.length === 0) {
+        select.innerHTML = `<option value="">未找到可用模型</option>`;
+      } else {
+        models.forEach(m => {
+          const opt = document.createElement("option");
+          opt.value = m.id;
+          opt.textContent = m.id;
+          select.appendChild(opt);
+        });
+      }
+      setStatus("ok");
+    } catch (err) {
+      console.error("连通测试失败:", err);
+      select.innerHTML = `<option value="">连接异常</option>`;
+      setStatus("fail");
+    }
+  }
+
+  // ==================== 3. 消息交互与聊天发送 ====================
+  async function sendAIMessage() {
+    const input = document.getElementById("ai-chat-input");
+    const select = document.getElementById("ai-model-select");
+    const model = select.value;
+    const text = input.value.trim();
+    const key = getActiveApiKey();
+
+    if (!text) return;
+    if (!model) {
+      alert("请先选择模型或点击【测试】拉取模型！");
+      return;
+    }
+
+    // 渲染用户输入
+    renderBubble("user", text);
+    input.value = "";
+    conversationHistory.push({ role: "user", content: text });
+
+    // 占位气泡
+    const botBubble = renderBubble("assistant", "思考中...");
+
+    try {
+      const headers = { "Content-Type": "application/json" };
+      if (key) headers["Authorization"] = `Bearer ${key}`;
+
+      const res = await fetch(`${AI_SETTINGS.baseUrl}/chat/completions`, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify({
+          model: model,
+          messages: conversationHistory,
+          temperature: 0.7
+        })
+      });
+
+      if (!res.ok) throw new Error("API 响应失败: " + res.status);
+
+      const data = await res.json();
+      const reply = data.choices?.[0]?.message?.content || "收到空回复";
+
+      botBubble.innerText = reply;
+      conversationHistory.push({ role: "assistant", content: reply });
+      setStatus("ok");
+    } catch (err) {
+      botBubble.innerText = "请求发生错误，请检查网络、跨域设置或 API Key。";
+      setStatus("fail");
+    }
+  }
+
+  function renderBubble(role, text) {
+    const container = document.getElementById("ai-chat-messages");
+    const bubble = document.createElement("div");
+    bubble.style.padding = "8px 12px";
+    bubble.style.borderRadius = "8px";
+    bubble.style.maxWidth = "82%";
+    bubble.style.wordBreak = "break-word";
+    bubble.style.whiteSpace = "pre-wrap";
+
+    if (role === "user") {
+      bubble.style.alignSelf = "flex-end";
+      bubble.style.background = "#2563eb";
+      bubble.style.color = "#ffffff";
+    } else {
+      bubble.style.alignSelf = "flex-start";
+      bubble.style.background = "#27272a";
+      bubble.style.color = "#f4f4f5";
+    }
+
+    bubble.innerText = text;
+    container.appendChild(bubble);
+    container.scrollTop = container.scrollHeight;
+    return bubble;
+  }
+
+  // 监听 Enter 快捷键发送
+  document.getElementById("ai-chat-input")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendAIMessage();
+    }
+  });
+</script>
+<!-- ==================== AI 聊天扩展组件 结束 ==================== -->
+
 </body>
 
 </html>
